@@ -1,148 +1,247 @@
-# Instrucciones de Uso - Módulo Cliente ConcreteWare
+# 🚀 Instrucciones de Uso - ConcreteWare Admin
 
-## 🚀 Guía de Inicio Rápido
+## 📋 Resumen del Proyecto
 
-### 1. Acceso al Sistema
+Este proyecto incluye:
+- **Backend**: Spring Boot con Firebase y Firestore
+- **Frontend**: React + TypeScript + Tailwind CSS
+- **Autenticación**: Firebase Authentication
+- **Base de Datos**: Firestore (NoSQL)
 
-1. **Abrir la aplicación** en tu navegador web
-2. **Hacer clic en "Cliente"** en la pantalla de inicio
-3. **Ingresar credenciales** proporcionadas por el administrador:
-   - **Email**: Tu correo electrónico registrado
-   - **Contraseña**: Contraseña temporal o personal
+## 🛠️ Configuración Inicial
 
-### 2. Primer Ingreso
+### 1. Configurar Firebase
 
-Si es tu **primer ingreso**, el sistema te obligará a cambiar tu contraseña:
+1. Ve a [Firebase Console](https://console.firebase.google.com/)
+2. Crea un nuevo proyecto llamado "concreteware"
+3. Habilita Authentication con Email/Password
+4. Crea una base de datos Firestore
+5. Configura las reglas de Firestore:
 
-1. **Ingresa la contraseña temporal** proporcionada
-2. **Crea una nueva contraseña** que cumpla los requisitos de seguridad
-3. **Confirma la nueva contraseña**
-4. **Haz clic en "Cambiar Contraseña"**
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+```
 
-## 📱 Navegación Principal
+### 2. Configurar el Backend
 
-### Pantalla de Inicio
-- **Nombre del cliente**: Se muestra en la parte superior
-- **Resumen de pedidos**: Tarjetas con pedidos en curso y pendientes
-- **Botones de acción**:
-  - 🔧 **Gestionar mi orden**: Ver detalles y modificar pedidos
-  - ➕ **Crear orden**: Solicitar nuevo pedido
-  - 🗺️ **Ver mapa**: Seguimiento en tiempo real
-  - 🚪 **Cerrar sesión**: Salir del sistema
+1. **Descargar credenciales de Firebase:**
+   - En Firebase Console → Configuración del proyecto → Cuentas de servicio
+   - Descarga el archivo JSON de la cuenta de servicio
+   - Colócalo en `src/main/resources/firebase-service-account.json`
 
-## 📋 Gestión de Pedidos
+2. **Configurar application.properties:**
+   ```properties
+   # Firebase
+   firebase.service-account.path=classpath:firebase-service-account.json
+   
+   # Server
+   server.port=8080
+   ```
 
-### Ver Pedidos Existentes
-1. **Hacer clic en "Gestionar mi orden"**
-2. **Seleccionar un pedido** de la lista
-3. **Ver detalles completos**:
-   - Estado del pedido
-   - Fecha y hora de entrega
-   - Cantidad y tipo de concreto
-   - Ubicación de entrega
+3. **Ejecutar el backend:**
+   ```bash
+   # En el directorio raíz del proyecto
+   mvn spring-boot:run
+   ```
 
-### Modificar Pedidos
+### 3. Configurar el Frontend
 
-#### Cambiar Franja Horaria
-- **Disponible hasta 4 horas antes** de la entrega
-- **Hacer clic en "Modificar horario"**
-- **Seleccionar nueva franja** disponible
-- **Enviar solicitud** para aprobación del administrador
+1. **Navegar al directorio frontend:**
+   ```bash
+   cd frontend
+   ```
 
-#### Ajustar Cantidad
-- **Solo para pedidos pendientes** (no cargados)
-- **Hacer clic en "Modificar cantidad"**
-- **Ingresar nueva cantidad**
-- **Confirmar cambios**
+2. **Instalar dependencias:**
+   ```bash
+   npm install
+   ```
 
-## ➕ Crear Nuevo Pedido
+3. **Configurar Firebase (ya está configurado):**
+   El archivo `src/firebase.ts` ya tiene las credenciales configuradas.
 
-1. **Hacer clic en "Crear orden"**
-2. **Completar formulario**:
-   - **Tipo de concreto**: Seleccionar resistencia y características
-   - **Cantidad**: Especificar metros cúbicos
-   - **Fecha de entrega**: Elegir día disponible
-   - **Franja horaria**: Seleccionar horario preferido
-   - **Ubicación**: Dirección exacta de entrega
-   - **Observaciones**: Detalles adicionales
-3. **Revisar información** antes de enviar
-4. **Confirmar pedido**
+4. **Ejecutar el frontend:**
+   ```bash
+   npm start
+   ```
 
-## 🗺️ Seguimiento en Tiempo Real
+## 🌐 Acceso a la Aplicación
 
-### Ver Mapa de Seguimiento
-1. **Hacer clic en "Ver mapa"**
-2. **Seleccionar pedido** para rastrear
-3. **Ver ubicación del vehículo** en tiempo real
-4. **Estado de entrega** actualizado automáticamente
+- **Frontend**: http://localhost:3000
+- **Backend**: http://localhost:8080
 
-### Compartir Enlace de Rastreo
-1. **En la vista del mapa**, hacer clic en "Compartir"
-2. **Copiar enlace público** generado
-3. **Compartir con terceros** (solo muestra el mapa, sin acceso a otras funciones)
+## 👤 Crear Usuario Administrador
 
-## 📞 Contacto con la Planta
+### Opción 1: Desde Firebase Console
+1. Ve a Firebase Console → Authentication → Users
+2. Haz clic en "Add User"
+3. Ingresa email y contraseña
+4. En Firestore, crea el documento del usuario:
+   ```
+   plantas/{idPlanta}/usuarios/{uid}
+   {
+     "email": "admin@concreteware.com",
+     "tipoUsuario": "ADMIN"
+   }
+   ```
 
-### Contacto Rápido
-- **Botón de WhatsApp**: Contacto directo por mensaje
-- **Botón de llamada**: Llamada telefónica inmediata
-- **Disponible en**: Pantalla principal y detalles de pedidos
+### Opción 2: Desde la API
+```bash
+curl -X POST http://localhost:8080/{idPlanta}/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@concreteware.com",
+    "password": "password123",
+    "tipoUsuario": "ADMIN"
+  }'
+```
 
-## 🔐 Seguridad y Sesión
+## 📱 Funcionalidades Disponibles
 
-### Cerrar Sesión
-- **Desde la aplicación**: Hacer clic en "Cerrar sesión"
-- **Desde el navegador**: Cerrar pestaña o ventana
-- **Sesión automática**: Se cierra después de inactividad
+### 🔐 Autenticación
+- Login con email/password
+- Selección de planta
+- Sesión persistente
+- Logout automático
 
-### Recuperar Contraseña
-1. **En la pantalla de login**, hacer clic en "¿Olvidaste tu contraseña?"
-2. **Ingresar email** registrado
-3. **Revisar correo** para enlace de recuperación
-4. **Crear nueva contraseña** siguiendo las instrucciones
+### 👥 Gestión de Clientes
+- ✅ Crear cliente con NIT y empresa
+- ✅ Editar información de contacto
+- ✅ Eliminar clientes
+- ✅ Búsqueda por nombre/empresa
 
-## ⚠️ Consideraciones Importantes
+### 🚛 Gestión de Conductores
+- ✅ Registrar conductores
+- ✅ Gestión de licencias
+- ✅ Estados: Activo/Inactivo/Suspendido
+- ✅ Asignación a pedidos
 
-### Modificaciones de Pedidos
-- **Solo se pueden modificar** pedidos pendientes
-- **Las modificaciones requieren** aprobación del administrador
-- **Los cambios se reflejan** en tiempo real en el sistema
+### 📦 Gestión de Productos
+- ✅ Catálogo de productos
+- ✅ Control de stock
+- ✅ Múltiples unidades (m³, kg, l)
+- ✅ Precios y descripciones
 
-### Horarios de Entrega
-- **Las modificaciones de horario** solo son posibles hasta 4 horas antes
-- **Los horarios disponibles** dependen de la capacidad de la planta
-- **Se recomienda** hacer cambios con anticipación
+### 🚚 Gestión de Vehículos
+- ✅ Registro de vehículos
+- ✅ Estados: Disponible/En uso/Mantenimiento
+- ✅ Capacidad y placa
+- ✅ Marca y modelo
 
-### Comunicación
-- **Usar los botones de contacto** para consultas urgentes
-- **El seguimiento en tiempo real** es la mejor forma de monitorear entregas
-- **Los enlaces de rastreo** son seguros para compartir
+### 🏗️ Gestión de Obras
+- ✅ Crear obras por cliente
+- ✅ Estados: Activa/Completada/Suspendida
+- ✅ Fechas de inicio y fin
+- ✅ Dirección de la obra
 
-## 🆘 Solución de Problemas
+### 📋 Gestión de Pedidos
+- ✅ Crear pedidos con múltiples productos
+- ✅ Asignar conductores
+- ✅ Control de estados completo
+- ✅ Cálculo automático de totales
 
-### No puedo iniciar sesión
-- **Verificar credenciales** (email y contraseña)
-- **Contactar al administrador** si las credenciales no funcionan
-- **Usar recuperación de contraseña** si olvidaste la contraseña
+## 🔧 Solución de Problemas
 
-### No veo mis pedidos
-- **Verificar que estés logueado** correctamente
-- **Contactar al administrador** si no aparecen pedidos
-- **Revisar filtros** en la vista de pedidos
+### Error de CORS
+```bash
+# Verificar que el backend esté ejecutándose
+curl http://localhost:8080/actuator/health
+```
 
-### El mapa no carga
-- **Verificar conexión a internet**
-- **Recargar la página**
-- **Contactar soporte** si persiste el problema
+### Error de Firebase
+1. Verificar credenciales en `firebase.ts`
+2. Verificar que Authentication esté habilitado
+3. Verificar reglas de Firestore
 
-## 📞 Soporte Técnico
+### Error de Dependencias
+```bash
+cd frontend
+rm -rf node_modules package-lock.json
+npm install
+```
 
-Para **soporte técnico** o **consultas adicionales**:
-- **WhatsApp**: Usar botón de contacto en la aplicación
-- **Teléfono**: Llamar directamente a la planta
-- **Email**: Contactar al administrador del sistema
+### Error de Compilación
+```bash
+# Limpiar cache
+cd frontend
+npm run build
+```
+
+## 📊 Estructura de Datos
+
+### Plantas
+```
+plantas/{idPlanta}/
+├── clientes/{idCliente}
+├── conductores/{idConductor}
+├── productos/{idProducto}
+├── vehiculos/{idVehiculo}
+├── obras/{idObra}
+├── pedidos/{idPedido}
+└── usuarios/{uid}
+```
+
+### Relaciones
+- **Clientes** → **Obras** (1:N)
+- **Pedidos** → **Productos** (N:M)
+- **Pedidos** → **Conductores** (N:1)
+- **Pedidos** → **Vehículos** (N:1)
+
+## 🎯 Flujo de Trabajo Típico
+
+1. **Crear Cliente** → Registrar empresa y contacto
+2. **Crear Obra** → Asociar al cliente
+3. **Registrar Productos** → Catálogo disponible
+4. **Registrar Conductores** → Personal disponible
+5. **Registrar Vehículos** → Flota disponible
+6. **Crear Pedido** → Seleccionar cliente, obra, productos
+7. **Asignar Conductor** → Al pedido
+8. **Actualizar Estados** → Seguimiento del pedido
+
+## 🔒 Seguridad
+
+- **Autenticación**: Firebase Auth
+- **Autorización**: Basada en tipo de usuario
+- **Validación**: Cliente y servidor
+- **CORS**: Configurado para desarrollo
+
+## 📱 Responsive Design
+
+- **Mobile**: Menú hamburguesa, tablas con scroll
+- **Tablet**: Layout adaptativo
+- **Desktop**: Sidebar fijo, tablas completas
+
+## 🚀 Despliegue
+
+### Backend (Heroku/Google Cloud)
+```bash
+mvn clean package
+java -jar target/concreteware-0.0.1-SNAPSHOT.jar
+```
+
+### Frontend (Netlify/Vercel)
+```bash
+cd frontend
+npm run build
+# Subir carpeta build
+```
+
+## 📞 Soporte
+
+Para problemas técnicos:
+1. Verificar logs del navegador (F12)
+2. Verificar logs del backend
+3. Consultar documentación en `README_FRONTEND.md`
+4. Crear issue en el repositorio
 
 ---
 
-**ConcreteWare - Sistema de Gestión de Concreto Premezclado**
-*Desarrollado para optimizar la experiencia del cliente* 
+**🎉 ¡Sistema listo para usar!**
+
+El sistema ConcreteWare Admin está completamente funcional con todas las características de gestión empresarial implementadas. 
